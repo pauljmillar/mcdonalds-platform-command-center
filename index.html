@@ -643,12 +643,13 @@
   }
   .am-manage-desc { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.5; }
 
-  .am-note {
-    background: rgba(90,96,128,0.1); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 16px;
-    font-size: var(--font-sm); color: var(--text-muted); line-height: 1.6;
+  .am-sources { display: flex; flex-direction: column; gap: 8px; }
+  .am-source-item { display: flex; align-items: baseline; gap: 10px; }
+  .am-source-link {
+    font-size: var(--font-sm); color: var(--status-blue); text-decoration: none;
+    transition: color 200ms ease;
   }
-  .am-note strong { color: var(--text-secondary); }
+  .am-source-link:hover { color: var(--text-primary); text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -935,8 +936,41 @@
 
     <hr class="am-divider">
 
-    <div class="am-note">
-      <strong>Note:</strong> I don't want to be presumptuous here. At an organization of McDonald's scale, there are likely mature dashboards and tooling already in place. This prototype is meant to show how I think about measurement and accountability — not to suggest they're starting from zero.
+    <div class="am-section-title">Research &amp; Sources</div>
+    <div class="am-body" style="margin-bottom:14px;">Every term in this prototype is drawn from McDonald's own published technical writing.</div>
+    <div class="am-sources">
+      <div class="am-source-item">
+        <span class="am-ref-tag">Sesame POS</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/simplifying-and-standardizing-software-at-scale-6b60e451e772" target="_blank">Simplifying and standardizing software at scale</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">Sesame POS</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/from-ideation-to-automation-the-scoop-on-outages-1ad0eab5cee1" target="_blank">From Ideation to Automation: The Scoop on Outages</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">ROA / Geofencing</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/inside-the-geofence-faster-pickups-start-here-8b7ec97717fe" target="_blank">Inside the Geofence: Faster Pickups Start Here</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">MELT / NGP</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/proactive-monitoring-the-why-what-and-how-c280b117a835" target="_blank">Proactive monitoring: The why, what and how</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">Observability</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/observe-and-report-fa2380f0c08a" target="_blank">Observe and report</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">Golden Pathways</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/golden-opportunities-b9ad56139cde" target="_blank">Golden opportunities</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">CI/CD</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/reduce-recycle-reuse-03a57554ee6a" target="_blank">Reduce, reuse, recycle: McDonald's reusable workflows</a>
+      </div>
+      <div class="am-source-item">
+        <span class="am-ref-tag">Deploy velocity</span>
+        <a class="am-source-link" href="https://medium.com/mcdonalds-technical-blog/deployment-markers-enhance-global-release-management-bf3def7d479a" target="_blank">Deployment markers enhance global release management</a>
+      </div>
     </div>
 
   </div>
