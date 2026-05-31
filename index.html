@@ -460,6 +460,112 @@
     50% { background: var(--status-red) !important; box-shadow: 0 0 8px rgba(239,68,68,0.7); }
   }
   .dot-incident { animation: dot-flash-red 0.6s ease 3; }
+
+  /* ABOUT BUTTON */
+  .about-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: var(--font-xs);
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    letter-spacing: 0.3px;
+  }
+  .about-btn:hover { border-color: var(--mcd-yellow); color: var(--mcd-yellow); }
+
+  /* ABOUT MODAL */
+  #about-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 600;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  #about-modal-overlay.open { display: flex; }
+  #about-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+    width: 720px;
+    max-width: 95vw;
+    position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+  }
+  .am-close {
+    position: absolute; top: 18px; right: 18px;
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 20px; line-height: 1; padding: 4px; transition: color 200ms ease;
+  }
+  .am-close:hover { color: var(--text-primary); }
+  .am-eyebrow {
+    font-size: var(--font-xs); font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--mcd-yellow); margin-bottom: 8px;
+  }
+  .am-title {
+    font-size: 22px; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 6px; line-height: 1.3;
+  }
+  .am-subtitle {
+    font-size: var(--font-sm); color: var(--text-secondary); margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .am-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .am-section-title {
+    font-size: var(--font-xs); font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+  }
+  .am-body {
+    font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .am-body strong { color: var(--text-primary); font-weight: 600; }
+  .am-principle-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 4px;
+  }
+  .am-principle {
+    background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px;
+  }
+  .am-principle-icon { font-size: 20px; margin-bottom: 8px; }
+  .am-principle-name {
+    font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); margin-bottom: 6px;
+  }
+  .am-principle-desc {
+    font-size: var(--font-xs); color: var(--text-secondary); line-height: 1.6;
+  }
+  .am-principle-desc strong { color: var(--text-primary); }
+  .am-ref-list { display: flex; flex-direction: column; gap: 8px; }
+  .am-ref-item { display: flex; align-items: flex-start; gap: 10px; }
+  .am-ref-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    background: rgba(255,199,44,0.12); color: var(--mcd-yellow); border: 1px solid rgba(255,199,44,0.25);
+    border-radius: 4px; padding: 2px 7px; white-space: nowrap; margin-top: 1px;
+  }
+  .am-ref-text { font-size: var(--font-xs); color: var(--text-secondary); line-height: 1.6; }
+  .am-ref-text strong { color: var(--text-primary); }
+  .am-jd-table { width: 100%; border-collapse: collapse; font-size: var(--font-xs); }
+  .am-jd-table th {
+    text-align: left; color: var(--text-muted); font-weight: 600;
+    padding: 6px 10px; border-bottom: 1px solid var(--border); text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .am-jd-table td { padding: 9px 10px; border-bottom: 1px solid rgba(42,45,62,0.6); vertical-align: top; }
+  .am-jd-table td:first-child { color: var(--text-secondary); width: 40%; }
+  .am-jd-table td:last-child { color: var(--text-primary); }
+  .am-built-note {
+    margin-top: 24px;
+    background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 8px; padding: 14px 16px;
+    font-size: var(--font-xs); color: var(--text-secondary); line-height: 1.6;
+  }
+  .am-built-note strong { color: var(--status-blue); }
 </style>
 </head>
 <body>
@@ -479,6 +585,7 @@
     </div>
   </div>
   <div class="header-right">
+    <button class="about-btn" onclick="openAboutModal()">About this prototype</button>
     <div class="live-badge">
       <div class="live-dot"></div>
       Live Simulation
@@ -651,6 +758,140 @@
     </div>
   </div>
 
+</div>
+
+<!-- ABOUT MODAL -->
+<div id="about-modal-overlay" onclick="closeAboutModal(event)">
+  <div id="about-modal">
+    <button class="am-close" onclick="closeAboutModalDirect()">✕</button>
+
+    <div class="am-eyebrow">Sr. Director of Engineering — Interview Prototype</div>
+    <div class="am-title">Why I built this, and what it says about how I work</div>
+    <div class="am-subtitle">
+      "Before I can improve platform reliability, development velocity, and tech stack adoption —
+      I need to be able to <em>see</em> all three, in one place, across every market.
+      This is the leadership view I'd build on day one."
+    </div>
+
+    <hr class="am-divider">
+
+    <div class="am-section-title">The Problem This Solves</div>
+    <div class="am-body">
+      A Sr. Director governing McDonald's restaurant technology across 100+ markets faces a
+      classic distributed-systems leadership problem: <strong>you can't run a platform you can't see.</strong>
+      Uptime, digital adoption, stack currency, and deploy velocity don't improve by instinct —
+      they improve when they're measured, made visible to leadership, and tied to an explicit
+      investment roadmap.
+    </div>
+    <div class="am-body">
+      This prototype demonstrates that visibility. It is structured as three deliberate layers —
+      a <strong>KPI strip</strong> for leadership forums ("where are we today"),
+      an <strong>initiative strip</strong> for planning conversations ("what are we doing about it, and what's the projected impact"),
+      and a <strong>market grid + scorecard</strong> for execution ("where each market sits in the journey, and what's next for them specifically").
+    </div>
+
+    <hr class="am-divider">
+
+    <div class="am-section-title">How It Reflects How I Work</div>
+    <div class="am-principle-grid">
+      <div class="am-principle">
+        <div class="am-principle-icon">🤖</div>
+        <div class="am-principle-name">AI as a force multiplier</div>
+        <div class="am-principle-desc">
+          This entire prototype — data model, UI, interactions, deploy pipeline — was built in a
+          single session using <strong>Claude Code</strong>. I treat AI tooling as core to engineering
+          leadership: faster prototyping means faster learning, faster stakeholder alignment,
+          and a culture that ships ideas before they become slide decks.
+        </div>
+      </div>
+      <div class="am-principle">
+        <div class="am-principle-icon">📏</div>
+        <div class="am-principle-name">"Can't improve what you don't measure"</div>
+        <div class="am-principle-desc">
+          The <strong>Platform Readiness Score</strong> is a weighted composite of four dimensions —
+          Reliability (35%), Digital Adoption (30%), Stack Currency (20%), Feature Enablement (15%).
+          Making the scoring formula explicit and public turns a subjective "how are we doing"
+          into an objective, contestable, improvable number.
+        </div>
+      </div>
+      <div class="am-principle">
+        <div class="am-principle-icon">🚀</div>
+        <div class="am-principle-name">DORA metrics as a first-class signal</div>
+        <div class="am-principle-desc">
+          Deploy velocity, lead time, and MTTR are surfaced at the leadership level — not buried
+          in an eng dashboard. <strong>3.2 deploys/week, 4.2-day lead time, 47-min MTTR</strong>
+          are the same metrics Google's DORA research uses to distinguish elite from
+          low-performing engineering organizations.
+        </div>
+      </div>
+      <div class="am-principle">
+        <div class="am-principle-icon">⚖️</div>
+        <div class="am-principle-name">Managing initiative mix deliberately</div>
+        <div class="am-principle-desc">
+          The initiative strip shows <strong>five programs at different time horizons</strong>:
+          quick wins (DevSecOps Golden Pathway, Q3 2026), medium-term rollouts (Sesame migration,
+          Q4 2026), and longer bets (Predictive MELT stack, Q1 2027). Healthy engineering orgs
+          always have something shipping — not everything lives in a multi-year program.
+        </div>
+      </div>
+    </div>
+
+    <hr class="am-divider">
+
+    <div class="am-section-title">Research Behind It</div>
+    <div class="am-body" style="margin-bottom:16px;">
+      Every term in this prototype is drawn from McDonald's own published technical writing —
+      not invented for the demo.
+    </div>
+    <div class="am-ref-list">
+      <div class="am-ref-item">
+        <span class="am-ref-tag">Tech Blog</span>
+        <div class="am-ref-text"><strong>Sesame POS</strong> — McDonald's proprietary point-of-sale platform, referenced in their engineering blog as the standardization target across all markets ("One McDonald's Way").</div>
+      </div>
+      <div class="am-ref-item">
+        <span class="am-ref-tag">Tech Blog</span>
+        <div class="am-ref-text"><strong>Ready on Arrival (ROA)</strong> — Geofence-based just-in-time kitchen prep feature, live since April 2023. Requires Sesame v3.x, which is why it appears as a blocked initiative for legacy-platform markets in this prototype.</div>
+      </div>
+      <div class="am-ref-item">
+        <span class="am-ref-tag">Tech Blog</span>
+        <div class="am-ref-text"><strong>MELT stack</strong> (Metrics, Errors, Logs, Traces) — McDonald's term for their observability foundation. Their engineering writing describes a maturity arc: <em>reactive → proactive → predictive</em>. The Predictive Monitoring initiative in this prototype represents the "predictive" stage.</div>
+      </div>
+      <div class="am-ref-item">
+        <span class="am-ref-tag">Tech Blog</span>
+        <div class="am-ref-text"><strong>Golden Pathways</strong> — McDonald's DevSecOps Platform term for standardized, self-serve CI/CD templates. The "DevSecOps Golden Pathway" initiative card maps directly to this published program.</div>
+      </div>
+      <div class="am-ref-item">
+        <span class="am-ref-tag">Tech Blog</span>
+        <div class="am-ref-text"><strong>NGP / Next Gen Platform</strong> — The observability and CI/CD infrastructure layer that Golden Pathways runs on. Referenced in McDonald's engineering blog as the foundation for their developer productivity push.</div>
+      </div>
+      <div class="am-ref-item">
+        <span class="am-ref-tag">GMA</span>
+        <div class="am-ref-text"><strong>Global Mobile App</strong> — McDonald's unified mobile ordering channel. The "Mobile %" metric in each market's channel mix represents GMA adoption share.</div>
+      </div>
+    </div>
+
+    <hr class="am-divider">
+
+    <div class="am-section-title">JD Alignment — What This Demo Proves</div>
+    <table class="am-jd-table">
+      <thead><tr><th>Job Description Requirement</th><th>Where It Shows Up in the Demo</th></tr></thead>
+      <tbody>
+        <tr><td>Improve POS and Kiosk platform reliability</td><td>Uptime KPI card + per-market incident tracking + Predictive Monitoring initiative</td></tr>
+        <tr><td>Data integration across platform signals</td><td>Channel mix + equipment status flowing into a unified composite score</td></tr>
+        <tr><td>Development velocity</td><td>Deploy velocity KPI + MTTR + DevSecOps Golden Pathway initiative</td></tr>
+        <tr><td>Tech stack adoption across 100+ markets</td><td>Stack Currency score dimension + Initiative View toggle on market grid</td></tr>
+        <tr><td>Data-driven engineering performance metrics</td><td>The four-dimension scorecard + projected score uplift per initiative</td></tr>
+        <tr><td>Lead engineering in leadership forums</td><td>KPI strip (leadership view) → Initiative strip (planning view) → Grid (execution view)</td></tr>
+        <tr><td>Lead initiatives improving PDLC efficiency</td><td>Five active programs with enrollment %, target dates, and quantified business impact</td></tr>
+        <tr><td>Manage platform milestones, budget, ROI</td><td>Score uplift estimates + initiative timelines = ROI framing built into the planning layer</td></tr>
+      </tbody>
+    </table>
+
+    <div class="am-built-note">
+      <strong>Built with Claude Code</strong> — This prototype was spec'd as a BRD and implemented end-to-end in a single AI-assisted session: architecture, data model, UI, interactions, GitHub repo, and Vercel deploy. Time from BRD to live URL: under two hours. That's the development velocity story made tangible.
+    </div>
+
+  </div>
 </div>
 
 <!-- INITIATIVE MODAL -->
@@ -1355,8 +1596,19 @@ updateKPIForRegion();
 
 // Close modal on Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeInitModalDirect();
+  if (e.key === 'Escape') { closeInitModalDirect(); closeAboutModalDirect(); }
 });
+
+// About modal
+function openAboutModal() {
+  document.getElementById('about-modal-overlay').classList.add('open');
+}
+function closeAboutModal(e) {
+  if (e.target === document.getElementById('about-modal-overlay')) closeAboutModalDirect();
+}
+function closeAboutModalDirect() {
+  document.getElementById('about-modal-overlay').classList.remove('open');
+}
 
 // Tick last updated
 setInterval(() => {
