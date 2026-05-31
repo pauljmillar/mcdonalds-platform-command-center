@@ -622,13 +622,33 @@
   .am-jd-table td { padding: 9px 10px; border-bottom: 1px solid rgba(42,45,62,0.6); vertical-align: top; }
   .am-jd-table td:first-child { color: var(--text-secondary); width: 40%; }
   .am-jd-table td:last-child { color: var(--text-primary); }
-  .am-built-note {
-    margin-top: 24px;
-    background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2);
-    border-radius: 8px; padding: 14px 16px;
-    font-size: var(--font-xs); color: var(--text-secondary); line-height: 1.6;
+  .am-steps { display: flex; flex-direction: column; gap: 16px; }
+  .am-step { display: flex; gap: 16px; align-items: flex-start; }
+  .am-step-num {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,199,44,0.15); border: 1px solid rgba(255,199,44,0.35);
+    color: var(--mcd-yellow); font-size: var(--font-sm); font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
   }
-  .am-built-note strong { color: var(--status-blue); }
+  .am-step-title { font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+  .am-step-desc { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; }
+
+  .am-manage-list { display: flex; flex-direction: column; gap: 10px; }
+  .am-manage-row { display: flex; align-items: baseline; gap: 12px; }
+  .am-manage-tag {
+    font-size: var(--font-xs); font-weight: 700; letter-spacing: 0.4px;
+    background: var(--bg-primary); border: 1px solid var(--border);
+    color: var(--text-secondary); border-radius: 4px; padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .am-manage-desc { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.5; }
+
+  .am-note {
+    background: rgba(90,96,128,0.1); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+    font-size: var(--font-sm); color: var(--text-muted); line-height: 1.6;
+  }
+  .am-note strong { color: var(--text-secondary); }
 </style>
 </head>
 <body>
@@ -865,130 +885,58 @@
   <div id="about-modal">
     <button class="am-close" onclick="closeAboutModalDirect()">✕</button>
 
-    <div class="am-eyebrow">Sr. Director of Engineering — Interview Prototype</div>
-    <div class="am-title">Why I built this, and what it says about how I work</div>
-    <div class="am-subtitle">
-      "Before I can improve platform reliability, development velocity, and tech stack adoption —
-      I need to be able to <em>see</em> all three, in one place, across every market.
-      This is the leadership view I'd build on day one."
-    </div>
+    <div class="am-eyebrow">About this prototype</div>
+    <div class="am-title">Why I built this</div>
 
     <hr class="am-divider">
 
-    <div class="am-section-title">The Problem This Solves</div>
+    <div class="am-section-title">The Problem</div>
     <div class="am-body">
-      A Sr. Director governing McDonald's restaurant technology across 100+ markets faces a
-      classic distributed-systems leadership problem: <strong>you can't run a platform you can't see.</strong>
-      Uptime, digital adoption, stack currency, and deploy velocity don't improve by instinct —
-      they improve when they're measured, made visible to leadership, and tied to an explicit
-      investment roadmap.
-    </div>
-    <div class="am-body">
-      This prototype demonstrates that visibility. It is structured as three deliberate layers —
-      a <strong>KPI strip</strong> for leadership forums ("where are we today"),
-      an <strong>initiative strip</strong> for planning conversations ("what are we doing about it, and what's the projected impact"),
-      and a <strong>market grid + scorecard</strong> for execution ("where each market sits in the journey, and what's next for them specifically").
+      Define and implement engineering processes, tools, and standards that improve POS and Kiosk platform reliability, data integration, overall development velocity, and adoption of the tech stack across 100+ markets. Scale our engineering capabilities while fostering a culture of craftsmanship, collaboration, and continuous improvement across all layers of our restaurant stack.
     </div>
 
     <hr class="am-divider">
 
-    <div class="am-section-title">How It Reflects How I Work</div>
-    <div class="am-principle-grid">
-      <div class="am-principle">
-        <div class="am-principle-icon">🤖</div>
-        <div class="am-principle-name">AI as a force multiplier</div>
-        <div class="am-principle-desc">
-          This entire prototype — data model, UI, interactions, deploy pipeline — was built in a
-          single session using <strong>Claude Code</strong>. I treat AI tooling as core to engineering
-          leadership: faster prototyping means faster learning, faster stakeholder alignment,
-          and a culture that ships ideas before they become slide decks.
+    <div class="am-steps">
+      <div class="am-step">
+        <div class="am-step-num">1</div>
+        <div>
+          <div class="am-step-title">Measure</div>
+          <div class="am-step-desc">Before you can improve reliability, velocity, or adoption — you need a baseline. This dashboard defines a composite Platform Readiness Score across four dimensions (reliability, digital adoption, stack currency, feature enablement) so every market has a number that can go up or down.</div>
         </div>
       </div>
-      <div class="am-principle">
-        <div class="am-principle-icon">📏</div>
-        <div class="am-principle-name">"Can't improve what you don't measure"</div>
-        <div class="am-principle-desc">
-          The <strong>Platform Readiness Score</strong> is a weighted composite of four dimensions —
-          Reliability (35%), Digital Adoption (30%), Stack Currency (20%), Feature Enablement (15%).
-          Making the scoring formula explicit and public turns a subjective "how are we doing"
-          into an objective, contestable, improvable number.
-        </div>
-      </div>
-      <div class="am-principle">
-        <div class="am-principle-icon">🚀</div>
-        <div class="am-principle-name">DORA metrics as a first-class signal</div>
-        <div class="am-principle-desc">
-          Deploy velocity, lead time, and MTTR are surfaced at the leadership level — not buried
-          in an eng dashboard. <strong>3.2 deploys/week, 4.2-day lead time, 47-min MTTR</strong>
-          are the same metrics Google's DORA research uses to distinguish elite from
-          low-performing engineering organizations.
-        </div>
-      </div>
-      <div class="am-principle">
-        <div class="am-principle-icon">⚖️</div>
-        <div class="am-principle-name">Managing initiative mix deliberately</div>
-        <div class="am-principle-desc">
-          The initiative strip shows <strong>five programs at different time horizons</strong>:
-          quick wins (DevSecOps Golden Pathway, Q3 2026), medium-term rollouts (Sesame migration,
-          Q4 2026), and longer bets (Predictive MELT stack, Q1 2027). Healthy engineering orgs
-          always have something shipping — not everything lives in a multi-year program.
+      <div class="am-step">
+        <div class="am-step-num">2</div>
+        <div>
+          <div class="am-step-title">Track progress</div>
+          <div class="am-step-desc">Each initiative card shows enrollment, projected score impact, and target date. Over time, the score moves — and you can point to exactly which program moved it.</div>
         </div>
       </div>
     </div>
 
     <hr class="am-divider">
 
-    <div class="am-section-title">Research Behind It</div>
-    <div class="am-body" style="margin-bottom:16px;">
-      Every term in this prototype is drawn from McDonald's own published technical writing —
-      not invented for the demo.
-    </div>
-    <div class="am-ref-list">
-      <div class="am-ref-item">
-        <span class="am-ref-tag">Tech Blog</span>
-        <div class="am-ref-text"><strong>Sesame POS</strong> — McDonald's proprietary point-of-sale platform, referenced in their engineering blog as the standardization target across all markets ("One McDonald's Way").</div>
+    <div class="am-section-title">I've built a similar dashboard at my current company</div>
+    <div class="am-body" style="margin-bottom: 14px;">It's become one of the most useful tools I have for three kinds of conversations:</div>
+    <div class="am-manage-list">
+      <div class="am-manage-row">
+        <span class="am-manage-tag">Manage up</span>
+        <span class="am-manage-desc">In executive quarterly reviews — showing where we are, what we're investing in, and whether it's working.</span>
       </div>
-      <div class="am-ref-item">
-        <span class="am-ref-tag">Tech Blog</span>
-        <div class="am-ref-text"><strong>Ready on Arrival (ROA)</strong> — Geofence-based just-in-time kitchen prep feature, live since April 2023. Requires Sesame v3.x, which is why it appears as a blocked initiative for legacy-platform markets in this prototype.</div>
+      <div class="am-manage-row">
+        <span class="am-manage-tag">Manage down</span>
+        <span class="am-manage-desc">Every week with my managers — we walk the metrics together to make sure nothing is drifting.</span>
       </div>
-      <div class="am-ref-item">
-        <span class="am-ref-tag">Tech Blog</span>
-        <div class="am-ref-text"><strong>MELT stack</strong> (Metrics, Errors, Logs, Traces) — McDonald's term for their observability foundation. Their engineering writing describes a maturity arc: <em>reactive → proactive → predictive</em>. The Predictive Monitoring initiative in this prototype represents the "predictive" stage.</div>
-      </div>
-      <div class="am-ref-item">
-        <span class="am-ref-tag">Tech Blog</span>
-        <div class="am-ref-text"><strong>Golden Pathways</strong> — McDonald's DevSecOps Platform term for standardized, self-serve CI/CD templates. The "DevSecOps Golden Pathway" initiative card maps directly to this published program.</div>
-      </div>
-      <div class="am-ref-item">
-        <span class="am-ref-tag">Tech Blog</span>
-        <div class="am-ref-text"><strong>NGP / Next Gen Platform</strong> — The observability and CI/CD infrastructure layer that Golden Pathways runs on. Referenced in McDonald's engineering blog as the foundation for their developer productivity push.</div>
-      </div>
-      <div class="am-ref-item">
-        <span class="am-ref-tag">GMA</span>
-        <div class="am-ref-text"><strong>Global Mobile App</strong> — McDonald's unified mobile ordering channel. The "Mobile %" metric in each market's channel mix represents GMA adoption share.</div>
+      <div class="am-manage-row">
+        <span class="am-manage-tag">Manage across</span>
+        <span class="am-manage-desc">In weekly conversations with Product, Operations, and other stakeholders — shared numbers replace subjective status updates.</span>
       </div>
     </div>
 
     <hr class="am-divider">
 
-    <div class="am-section-title">JD Alignment — What This Demo Proves</div>
-    <table class="am-jd-table">
-      <thead><tr><th>Job Description Requirement</th><th>Where It Shows Up in the Demo</th></tr></thead>
-      <tbody>
-        <tr><td>Improve POS and Kiosk platform reliability</td><td>Uptime KPI card + per-market incident tracking + Predictive Monitoring initiative</td></tr>
-        <tr><td>Data integration across platform signals</td><td>Channel mix + equipment status flowing into a unified composite score</td></tr>
-        <tr><td>Development velocity</td><td>Deploy velocity KPI + MTTR + DevSecOps Golden Pathway initiative</td></tr>
-        <tr><td>Tech stack adoption across 100+ markets</td><td>Stack Currency score dimension + Initiative View toggle on market grid</td></tr>
-        <tr><td>Data-driven engineering performance metrics</td><td>The four-dimension scorecard + projected score uplift per initiative</td></tr>
-        <tr><td>Lead engineering in leadership forums</td><td>KPI strip (leadership view) → Initiative strip (planning view) → Grid (execution view)</td></tr>
-        <tr><td>Lead initiatives improving PDLC efficiency</td><td>Five active programs with enrollment %, target dates, and quantified business impact</td></tr>
-        <tr><td>Manage platform milestones, budget, ROI</td><td>Score uplift estimates + initiative timelines = ROI framing built into the planning layer</td></tr>
-      </tbody>
-    </table>
-
-    <div class="am-built-note">
-      <strong>Built with Claude Code</strong> — This prototype was spec'd as a BRD and implemented end-to-end in a single AI-assisted session: architecture, data model, UI, interactions, GitHub repo, and Vercel deploy. Time from BRD to live URL: under two hours. That's the development velocity story made tangible.
+    <div class="am-note">
+      <strong>Note:</strong> I don't want to be presumptuous here. At an organization of McDonald's scale, there are likely mature dashboards and tooling already in place. This prototype is meant to show how I think about measurement and accountability — not to suggest they're starting from zero.
     </div>
 
   </div>
