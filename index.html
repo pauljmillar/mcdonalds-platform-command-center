@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>McDonald's Restaurant Platform Command Center</title>
+<style>
+  :root {
+    --mcd-red: #DA291C;
+    --mcd-red-dark: #B01E14;
+    --mcd-yellow: #FFC72C;
+    --mcd-yellow-dark: #E6A800;
+    --bg-primary: #0F1117;
+    --bg-card: #1A1D27;
+    --bg-card-hover: #22263A;
+    --border: #2A2D3E;
+    --text-primary: #F5F5F5;
+    --text-secondary: #9BA3C2;
+    --text-muted: #5A6080;
+    --status-green: #22C55E;
+    --status-yellow: #EAB308;
+    --status-red: #EF4444;
+    --status-blue: #3B82F6;
+    --chart-kiosk: #FFC72C;
+    --chart-counter: #DA291C;
+    --chart-mobile: #3B82F6;
+    --chart-drivethru: #22C55E;
+    --chart-delivery: #A855F7;
+    --font-xs: 11px;
+    --font-sm: 13px;
+    --font-base: 14px;
+    --font-md: 16px;
+    --font-lg: 20px;
+    --font-xl: 28px;
+    --font-2xl: 36px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: var(--font-base);
+    min-width: 1024px;
+  }
+
+  /* HEADER */
+  #header {
+    height: 64px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo { display: flex; align-items: center; gap: 10px; }
+  .header-logo svg { width: 36px; height: 36px; }
+  .header-wordmark { display: flex; flex-direction: column; }
+  .header-wordmark .brand { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary); }
+  .header-wordmark .title { font-size: var(--font-md); font-weight: 700; color: var(--text-primary); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 20px; padding: 4px 12px; font-size: var(--font-sm); color: var(--status-green);
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--status-green);
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+  }
+  .last-updated { font-size: var(--font-sm); color: var(--text-muted); }
+
+  /* MAIN LAYOUT */
+  #main { padding: 24px; }
+
+  /* KPI STRIP */
+  #kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-left: 4px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: all 200ms ease;
+    cursor: default;
+  }
+  .kpi-card:hover { background: var(--bg-card-hover); }
+  .kpi-card.green { border-left-color: var(--status-green); }
+  .kpi-card.yellow { border-left-color: var(--mcd-yellow); }
+  .kpi-card.blue { border-left-color: var(--status-blue); }
+  .kpi-card.red { border-left-color: var(--mcd-red); }
+  .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .kpi-icon-label { display: flex; align-items: center; gap: 8px; font-size: var(--font-sm); font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-icon { width: 20px; height: 20px; opacity: 0.8; }
+  .kpi-value { font-size: var(--font-2xl); font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 6px; }
+  .kpi-trend { font-size: var(--font-sm); color: var(--status-green); font-weight: 500; margin-bottom: 8px; }
+  .kpi-trend.down { color: var(--status-red); }
+  .kpi-context { font-size: var(--font-xs); color: var(--text-muted); line-height: 1.5; }
+
+  /* INITIATIVE STRIP */
+  #initiative-strip {
+    margin-bottom: 24px;
+  }
+  .section-label {
+    font-size: var(--font-xs); font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 10px;
+  }
+  #initiative-cards {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  #initiative-cards::-webkit-scrollbar { height: 4px; }
+  #initiative-cards::-webkit-scrollbar-track { background: var(--bg-primary); }
+  #initiative-cards::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .initiative-card {
+    min-width: 220px; max-width: 220px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .initiative-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .init-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .init-name { font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); line-height: 1.3; flex: 1; }
+  .status-badge {
+    font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px;
+    white-space: nowrap; margin-left: 8px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .status-badge.active { background: rgba(34,197,94,0.15); color: var(--status-green); border: 1px solid rgba(34,197,94,0.3); }
+  .status-badge.piloting { background: rgba(234,179,8,0.15); color: var(--status-yellow); border: 1px solid rgba(234,179,8,0.3); }
+  .status-badge.planned { background: rgba(59,130,246,0.15); color: var(--status-blue); border: 1px solid rgba(59,130,246,0.3); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .init-progress-label { font-size: var(--font-xs); color: var(--text-secondary); margin-bottom: 6px; }
+  .progress-bar-wrap { background: var(--bg-primary); border-radius: 4px; height: 6px; margin-bottom: 10px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--mcd-yellow); border-radius: 4px; transition: width 600ms ease; }
+  .progress-bar-fill.blue { background: var(--status-blue); }
+  .init-impact { font-size: var(--font-xs); color: var(--status-green); font-weight: 500; margin-bottom: 4px; }
+  .init-target { font-size: var(--font-xs); color: var(--text-muted); }
+  .init-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  /* MARKET GRID SECTION */
+  #grid-section {
+    display: grid;
+    grid-template-columns: 65% 35%;
+    gap: 20px;
+  }
+
+  /* LEFT COLUMN */
+  #grid-left {}
+  #grid-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .view-toggle {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .view-toggle-btn {
+    padding: 7px 16px;
+    font-size: var(--font-sm);
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 200ms ease;
+  }
+  .view-toggle-btn.active { background: var(--mcd-yellow); color: #000; font-weight: 700; }
+  .initiative-select-wrap { display: none; }
+  .initiative-select-wrap.visible { display: flex; align-items: center; gap: 8px; }
+  .initiative-select {
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 10px; border-radius: 6px; font-size: var(--font-sm); cursor: pointer;
+  }
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .filter-chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: var(--font-xs);
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 200ms ease;
+  }
+  .filter-chip.active { background: var(--mcd-yellow); color: #000; border-color: var(--mcd-yellow); }
+  .region-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .region-tab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+  .region-tab.active { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+  #market-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .market-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .market-card:hover { background: var(--bg-card-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.5); transform: scale(1.02); }
+  .market-card.selected { border-color: var(--mcd-yellow); box-shadow: 0 0 0 2px rgba(255,199,44,0.3); }
+  .market-card.dimmed { opacity: 0.3; }
+  .market-card.attention-flash { animation: flash-border 1.5s ease; }
+  @keyframes flash-border {
+    0%, 100% { border-color: var(--border); }
+    50% { border-color: var(--status-red); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+  }
+  .mc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .mc-name-wrap { display: flex; align-items: center; gap: 6px; }
+  .mc-health-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .mc-name { font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+  .mc-code { font-size: var(--font-xs); color: var(--text-muted); background: rgba(90,96,128,0.2); padding: 1px 5px; border-radius: 3px; }
+  .mc-divider { border: none; border-top: 1px solid var(--border); margin: 7px 0; }
+  .mc-metrics { display: flex; justify-content: space-between; margin-bottom: 7px; }
+  .mc-metric { text-align: center; }
+  .mc-metric-label { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+  .mc-metric-value { font-size: var(--font-xs); font-weight: 500; color: var(--text-secondary); }
+  .mc-score-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .mc-score-label { font-size: var(--font-xs); color: var(--text-muted); white-space: nowrap; }
+  .mc-score-num { font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+  .mc-score-bar-wrap { flex: 1; background: var(--bg-primary); border-radius: 3px; height: 5px; overflow: hidden; }
+  .mc-score-bar { height: 100%; border-radius: 3px; transition: width 400ms ease; }
+
+  /* Initiative view colors for market card */
+  .market-card.init-complete { border-left: 4px solid var(--mcd-yellow); }
+  .market-card.init-progress { border-left: 4px solid var(--status-blue); }
+  .market-card.init-blocked { border-left: 4px solid var(--status-red); }
+  .market-card.init-none { border-left: 4px solid var(--text-muted); }
+
+  /* DETAIL PANEL */
+  #detail-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    transform: translateX(20px);
+    opacity: 0;
+    transition: all 250ms ease;
+    pointer-events: none;
+  }
+  #detail-panel.visible {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+  #detail-panel::-webkit-scrollbar { width: 4px; }
+  #detail-panel::-webkit-scrollbar-track { background: transparent; }
+  #detail-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .detail-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: var(--text-muted); text-align: center; gap: 12px; }
+  .detail-placeholder svg { opacity: 0.3; }
+  .dp-market-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+  .dp-flag-name { display: flex; align-items: center; gap: 10px; }
+  .dp-flag { font-size: 28px; }
+  .dp-market-info {}
+  .dp-market-name { font-size: var(--font-lg); font-weight: 700; color: var(--text-primary); }
+  .dp-region-badge { font-size: var(--font-xs); color: var(--text-muted); background: rgba(90,96,128,0.2); padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 3px; }
+  .dp-score-ring { display: flex; flex-direction: column; align-items: center; }
+  .score-ring-container { position: relative; width: 72px; height: 72px; }
+  .score-ring-svg { transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: var(--bg-primary); stroke-width: 6; }
+  .score-ring-fill { fill: none; stroke: var(--mcd-yellow); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 600ms ease; }
+  .score-ring-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: var(--font-lg); font-weight: 700; color: var(--text-primary); }
+  .dp-score-label { font-size: 10px; color: var(--text-muted); margin-top: 4px; text-align: center; }
+  .dp-section-title { font-size: var(--font-xs); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin: 16px 0 10px; }
+  .score-breakdown {}
+  .score-row { margin-bottom: 10px; }
+  .score-row-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: var(--font-sm); }
+  .score-row-name { color: var(--text-secondary); font-weight: 500; cursor: help; border-bottom: 1px dotted var(--text-muted); display: inline-block; }
+  .score-row-right { display: flex; gap: 10px; }
+  .score-row-num { color: var(--text-primary); font-weight: 700; }
+  .score-row-weight { color: var(--text-muted); font-size: var(--font-xs); }
+  .score-row-bar-wrap { background: var(--bg-primary); border-radius: 4px; height: 6px; overflow: hidden; }
+  .score-row-bar { height: 100%; border-radius: 4px; transition: width 600ms ease; }
+  .channel-stacked { display: flex; border-radius: 6px; overflow: hidden; height: 24px; margin-bottom: 8px; }
+  .channel-seg { transition: flex 400ms ease; cursor: default; }
+  .channel-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: var(--font-xs); }
+  .legend-item { display: flex; align-items: center; gap: 5px; color: var(--text-secondary); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .checklist { display: flex; flex-direction: column; gap: 7px; }
+  .check-row { display: flex; align-items: center; gap: 8px; font-size: var(--font-sm); }
+  .check-icon { width: 16px; height: 16px; flex-shrink: 0; }
+  .check-label { color: var(--text-secondary); }
+  .check-value { color: var(--text-muted); font-size: var(--font-xs); margin-left: auto; }
+  .incident-list { display: flex; flex-direction: column; gap: 8px; }
+  .incident-row { display: flex; align-items: flex-start; gap: 8px; font-size: var(--font-sm); }
+  .incident-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .incident-info { flex: 1; }
+  .incident-desc { color: var(--text-secondary); }
+  .incident-meta { font-size: var(--font-xs); color: var(--text-muted); margin-top: 2px; }
+  .initiatives-table { width: 100%; font-size: var(--font-xs); border-collapse: collapse; }
+  .initiatives-table th { color: var(--text-muted); font-weight: 500; text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+  .initiatives-table td { padding: 7px 6px; border-bottom: 1px solid rgba(42,45,62,0.5); vertical-align: middle; }
+  .init-status-cell { display: flex; align-items: center; gap: 5px; font-size: var(--font-xs); white-space: nowrap; }
+  .init-impact-cell { color: var(--status-green); font-weight: 500; white-space: nowrap; }
+  .recommended-actions { background: rgba(255,199,44,0.05); border: 1px solid rgba(255,199,44,0.2); border-radius: 8px; padding: 14px; }
+  .ra-title { font-size: var(--font-xs); font-weight: 700; color: var(--mcd-yellow); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .ra-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .ra-list li { display: flex; align-items: flex-start; gap: 8px; font-size: var(--font-sm); color: var(--text-secondary); }
+  .ra-num { color: var(--mcd-yellow); font-weight: 700; min-width: 16px; }
+  .simulate-btn {
+    width: 100%; margin-top: 16px;
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    color: var(--status-red); border-radius: 8px;
+    padding: 10px; font-size: var(--font-sm); font-weight: 500;
+    cursor: pointer; transition: all 200ms ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .simulate-btn:hover { background: rgba(239,68,68,0.2); }
+  .simulate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* TOOLTIP */
+  .tooltip-wrap { position: relative; }
+  .tooltip-wrap:hover .tooltip { opacity: 1; visibility: visible; }
+  .tooltip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: #2A2D3E; border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: var(--font-xs); color: var(--text-secondary);
+    white-space: nowrap; max-width: 220px; white-space: normal; text-align: center;
+    opacity: 0; visibility: hidden; transition: all 150ms ease;
+    z-index: 200; pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  /* INITIATIVE MODAL */
+  #init-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  #init-modal-overlay.open { display: flex; }
+  #init-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    width: 700px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    position: relative;
+  }
+  #init-modal::-webkit-scrollbar { width: 4px; }
+  #init-modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 20px; line-height: 1; padding: 4px;
+    transition: color 200ms ease;
+  }
+  .modal-close:hover { color: var(--text-primary); }
+  .modal-header { margin-bottom: 20px; }
+  .modal-title { font-size: var(--font-lg); font-weight: 700; margin-bottom: 6px; }
+  .modal-desc { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.5; }
+  .modal-grid-label { font-size: var(--font-xs); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin: 16px 0 10px; }
+  .modal-market-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .modal-market-chip {
+    padding: 4px 10px; border-radius: 6px; font-size: var(--font-xs); font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .modal-market-chip.enrolled { background: rgba(255,199,44,0.15); color: var(--mcd-yellow); border-color: rgba(255,199,44,0.3); }
+  .modal-market-chip.not-enrolled { background: rgba(90,96,128,0.15); color: var(--text-muted); border-color: var(--border); }
+  .modal-market-chip.blocked { background: rgba(239,68,68,0.1); color: var(--status-red); border-color: rgba(239,68,68,0.3); }
+  .modal-list { display: flex; flex-direction: column; gap: 8px; }
+  .modal-list-row { display: flex; align-items: center; gap: 10px; font-size: var(--font-sm); }
+  .modal-list-num { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .modal-list-num.ready { background: rgba(34,197,94,0.2); color: var(--status-green); }
+  .modal-list-num.blocked { background: rgba(239,68,68,0.2); color: var(--status-red); }
+
+  /* BOTTOM BAR */
+  #bottom-bar {
+    margin-top: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .bottom-bar-title { font-size: var(--font-sm); font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+  .bottom-bar-desc { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; max-width: 800px; }
+  .bottom-legend { display: flex; flex-wrap: wrap; gap: 20px; }
+  .bl-item { display: flex; align-items: center; gap: 8px; }
+  .bl-color { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .bl-label { font-size: var(--font-sm); }
+  .bl-name { color: var(--text-primary); font-weight: 500; }
+  .bl-weight { color: var(--text-muted); font-size: var(--font-xs); }
+
+  /* ANIMATED SCORE */
+  @keyframes score-drop {
+    0% { color: var(--text-primary); }
+    30% { color: var(--status-red); }
+    100% { color: var(--text-primary); }
+  }
+  .score-animating { animation: score-drop 1s ease; }
+  @keyframes dot-flash-red {
+    0%, 100% {}
+    50% { background: var(--status-red) !important; box-shadow: 0 0 8px rgba(239,68,68,0.7); }
+  }
+  .dot-incident { animation: dot-flash-red 0.6s ease 3; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="header">
+  <div class="header-left">
+    <div class="header-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="8" fill="#DA291C"/>
+        <path d="M8 28V16C8 12.5 10.5 10 14 10C16 10 17.8 11 19 12.5C20.2 11 22 10 24 10C27.5 10 30 12.5 30 16V28H26V16C26 14.5 25.2 13.5 24 13.5C22.8 13.5 22 14.5 22 16V28H18V16C18 14.5 17.2 13.5 16 13.5C14.8 13.5 14 14.5 14 16V28H8Z" fill="#FFC72C"/>
+      </svg>
+      <div class="header-wordmark">
+        <span class="brand">Global Technology</span>
+        <span class="title">Restaurant Platform Command Center</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live Simulation
+    </div>
+    <span class="last-updated" id="last-updated">Last updated: just now</span>
+  </div>
+</header>
+
+<div id="main">
+
+  <!-- KPI STRIP -->
+  <div id="kpi-strip">
+    <div class="kpi-card green">
+      <div class="kpi-header">
+        <div class="kpi-icon-label">
+          <svg class="kpi-icon" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L3 7V18H7V12H13V18H17V7L10 2Z" stroke="#22C55E" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M7 9L9.5 11.5L13 8" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Platform Uptime
+        </div>
+      </div>
+      <div class="kpi-value" id="kpi-uptime">99.2%</div>
+      <div class="kpi-trend">▲ +0.3% vs prior period</div>
+      <div class="kpi-context">Target: 99.9% | 14 incidents this month</div>
+    </div>
+
+    <div class="kpi-card yellow">
+      <div class="kpi-header">
+        <div class="kpi-icon-label">
+          <svg class="kpi-icon" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="7" stroke="#FFC72C" stroke-width="1.5"/>
+            <path d="M10 10L10 3M10 10L15.5 13" stroke="#FFC72C" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Digital Order Mix
+        </div>
+      </div>
+      <div class="kpi-value">47%</div>
+      <div class="kpi-trend">▲ +4pp YoY</div>
+      <div class="kpi-context">Kiosk 28% · Mobile 19% · Counter 38% · Drive-thru 15%</div>
+    </div>
+
+    <div class="kpi-card blue">
+      <div class="kpi-header">
+        <div class="kpi-icon-label">
+          <svg class="kpi-icon" viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="13" width="14" height="3" rx="1" stroke="#3B82F6" stroke-width="1.5"/>
+            <rect x="5" y="9" width="10" height="3" rx="1" stroke="#3B82F6" stroke-width="1.5"/>
+            <rect x="7" y="5" width="6" height="3" rx="1" stroke="#3B82F6" stroke-width="1.5"/>
+          </svg>
+          Tech Stack Adoption
+        </div>
+      </div>
+      <div class="kpi-value" id="kpi-stack">68/100</div>
+      <div class="kpi-trend">▲ 12 markets this quarter</div>
+      <div class="kpi-context">Sesame v3.x: 68 markets | Legacy: 32 markets</div>
+    </div>
+
+    <div class="kpi-card red">
+      <div class="kpi-header">
+        <div class="kpi-icon-label">
+          <svg class="kpi-icon" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L13 7H17L14 10.5L15.5 15.5L10 12.5L4.5 15.5L6 10.5L3 7H7L10 2Z" stroke="#DA291C" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Deploy Velocity
+        </div>
+      </div>
+      <div class="kpi-value">3.2/wk</div>
+      <div class="kpi-trend">▲ +1.1 vs 6 months ago</div>
+      <div class="kpi-context">Lead time: 4.2 days | MTTR: 47 min</div>
+    </div>
+  </div>
+
+  <!-- INITIATIVE STRIP -->
+  <div id="initiative-strip">
+    <div class="section-label">Active Platform Initiatives</div>
+    <div id="initiative-cards">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- MARKET GRID + DETAIL PANEL -->
+  <div id="grid-section">
+    <div id="grid-left">
+      <div id="grid-controls">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="view-toggle">
+            <button class="view-toggle-btn active" data-view="health" onclick="setView('health')">Health Score</button>
+            <button class="view-toggle-btn" data-view="initiative" onclick="setView('initiative')">Initiative View</button>
+          </div>
+          <div class="initiative-select-wrap" id="initiative-select-wrap">
+            <span style="font-size:var(--font-xs);color:var(--text-muted);">Initiative:</span>
+            <select class="initiative-select" id="initiative-select" onchange="renderMarketGrid()">
+              <option value="0">Sesame v3.x Migration</option>
+              <option value="1">ROA Global Rollout</option>
+              <option value="2">DevSecOps Golden Pathway</option>
+              <option value="3">Predictive Monitoring</option>
+              <option value="4">Kiosk Adoption Accelerator</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All Markets</button>
+        <button class="filter-chip" data-filter="attention" onclick="setFilter('attention')">Needs Attention</button>
+        <button class="filter-chip" data-filter="legacy" onclick="setFilter('legacy')">Legacy Platform</button>
+      </div>
+      <div class="region-tabs">
+        <button class="region-tab active" data-region="all" onclick="setRegion('all')">All</button>
+        <button class="region-tab" data-region="Americas" onclick="setRegion('Americas')">Americas</button>
+        <button class="region-tab" data-region="Europe" onclick="setRegion('Europe')">Europe</button>
+        <button class="region-tab" data-region="APAC" onclick="setRegion('APAC')">APAC</button>
+        <button class="region-tab" data-region="MEA" onclick="setRegion('MEA')">Middle East & Africa</button>
+      </div>
+      <div id="market-grid">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <div id="detail-panel">
+      <div class="detail-placeholder">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="4" y="8" width="40" height="32" rx="4" stroke="#5A6080" stroke-width="2"/>
+          <path d="M16 24L22 24M22 24L18 20M22 24L18 28" stroke="#5A6080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28 18H34M28 24H32M28 30H30" stroke="#5A6080" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div style="font-size:var(--font-sm);font-weight:600;margin-bottom:4px;">Select a market</div>
+          <div style="font-size:var(--font-xs);">Click any market card to view its platform health scorecard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div id="bottom-bar">
+    <div class="bottom-bar-title">Platform Readiness Score — Decision Framework</div>
+    <div class="bottom-bar-desc">
+      The Platform Readiness Score is a weighted composite of four dimensions. Markets scoring below 60 are flagged for platform investment prioritization. Above 85 are candidates for early feature pilots.
+    </div>
+    <div class="bottom-legend">
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--status-green)"></div>
+        <div class="bl-label"><span class="bl-name">Reliability</span> <span class="bl-weight">35% — Uptime normalized 0–100</span></div>
+      </div>
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--mcd-yellow)"></div>
+        <div class="bl-label"><span class="bl-name">Digital Adoption</span> <span class="bl-weight">30% — (Kiosk + Mobile) / 60% target</span></div>
+      </div>
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--status-blue)"></div>
+        <div class="bl-label"><span class="bl-name">Stack Currency</span> <span class="bl-weight">20% — v3.x=100, v2.9=60, v2.8=40, older=10</span></div>
+      </div>
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--mcd-red)"></div>
+        <div class="bl-label"><span class="bl-name">Feature Enablement</span> <span class="bl-weight">15% — ROA + Geofence enabled</span></div>
+      </div>
+      <div class="bl-item" style="margin-left:auto; padding-left:20px; border-left:1px solid var(--border);">
+        <div class="bl-color" style="background:var(--status-green); border-radius:50%;"></div>
+        <div class="bl-label"><span class="bl-weight">Green ≥75</span></div>
+      </div>
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--status-yellow); border-radius:50%;"></div>
+        <div class="bl-label"><span class="bl-weight">Yellow 50–74</span></div>
+      </div>
+      <div class="bl-item">
+        <div class="bl-color" style="background:var(--status-red); border-radius:50%;"></div>
+        <div class="bl-label"><span class="bl-weight">Red &lt;50</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- INITIATIVE MODAL -->
+<div id="init-modal-overlay" onclick="closeInitModal(event)">
+  <div id="init-modal">
+    <button class="modal-close" onclick="closeInitModalDirect()">✕</button>
+    <div id="init-modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const markets = [
+  { name:"United States", code:"US", region:"Americas", flag:"🇺🇸", uptime:99.8, kiosk:32, mobile:24, counter:28, dt:16, sesame:"v3.2", roa:true, geofence:true, score:91, incidents:[
+    {sev:"green",date:"May 18",desc:"Scheduled maintenance window",resolved:"23m"},
+    {sev:"yellow",date:"May 10",desc:"GMA push notification delay",resolved:"41m"},
+    {sev:"green",date:"Apr 28",desc:"Kiosk firmware update — rolling restart",resolved:"1h 2m"}
+  ]},
+  { name:"Canada", code:"CA", region:"Americas", flag:"🇨🇦", uptime:99.5, kiosk:29, mobile:18, counter:35, dt:18, sesame:"v3.2", roa:true, geofence:true, score:84, incidents:[
+    {sev:"yellow",date:"May 22",desc:"Drive-thru timer sync drift",resolved:"55m"},
+    {sev:"green",date:"May 5",desc:"POS login latency spike",resolved:"28m"}
+  ]},
+  { name:"Brazil", code:"BR", region:"Americas", flag:"🇧🇷", uptime:97.8, kiosk:18, mobile:12, counter:48, dt:22, sesame:"v2.8", roa:false, geofence:false, score:52, incidents:[
+    {sev:"red",date:"May 25",desc:"POS system outage — 3 stores",resolved:"4h 12m"},
+    {sev:"yellow",date:"May 14",desc:"Kiosk payment reader timeout",resolved:"2h 14m"},
+    {sev:"yellow",date:"May 3",desc:"Menu sync delay",resolved:"1h 5m"}
+  ]},
+  { name:"Mexico", code:"MX", region:"Americas", flag:"🇲🇽", uptime:98.2, kiosk:22, mobile:10, counter:50, dt:18, sesame:"v2.9", roa:false, geofence:false, score:58, incidents:[
+    {sev:"yellow",date:"May 20",desc:"Kiosk UI crash — font rendering",resolved:"3h"},
+    {sev:"yellow",date:"May 9",desc:"Loyalty integration timeout",resolved:"1h 22m"}
+  ]},
+  { name:"Chile", code:"CL", region:"Americas", flag:"🇨🇱", uptime:96.1, kiosk:11, mobile:8, counter:62, dt:19, sesame:"v2.6", roa:false, geofence:false, score:38, incidents:[
+    {sev:"red",date:"May 27",desc:"Nationwide POS connectivity loss",resolved:"6h 50m"},
+    {sev:"red",date:"May 15",desc:"Payment gateway API failure",resolved:"3h 40m"},
+    {sev:"yellow",date:"May 2",desc:"Kiosk network dropout",resolved:"2h"}
+  ]},
+  { name:"United Kingdom", code:"GB", region:"Europe", flag:"🇬🇧", uptime:99.7, kiosk:38, mobile:22, counter:26, dt:14, sesame:"v3.2", roa:true, geofence:true, score:93, incidents:[
+    {sev:"green",date:"May 19",desc:"ROA geofence calibration",resolved:"18m"},
+    {sev:"green",date:"May 7",desc:"GMA A/B test deployment",resolved:"12m"}
+  ]},
+  { name:"Germany", code:"DE", region:"Europe", flag:"🇩🇪", uptime:99.4, kiosk:35, mobile:20, counter:29, dt:16, sesame:"v3.1", roa:true, geofence:true, score:87, incidents:[
+    {sev:"yellow",date:"May 23",desc:"GDPR consent module update delay",resolved:"1h 10m"},
+    {sev:"green",date:"May 11",desc:"Kiosk accessibility patch rollout",resolved:"35m"}
+  ]},
+  { name:"France", code:"FR", region:"Europe", flag:"🇫🇷", uptime:99.1, kiosk:34, mobile:19, counter:31, dt:16, sesame:"v3.1", roa:true, geofence:false, score:81, incidents:[
+    {sev:"yellow",date:"May 21",desc:"POS sync delay (EU menu push)",resolved:"47m"},
+    {sev:"yellow",date:"May 8",desc:"Geofence false trigger (urban)",resolved:"1h 5m"}
+  ]},
+  { name:"Spain", code:"ES", region:"Europe", flag:"🇪🇸", uptime:98.6, kiosk:28, mobile:14, counter:40, dt:18, sesame:"v3.0", roa:false, geofence:false, score:68, incidents:[
+    {sev:"yellow",date:"May 24",desc:"Kiosk payment terminal offline",resolved:"2h 30m"},
+    {sev:"green",date:"May 13",desc:"App update propagation delay",resolved:"50m"}
+  ]},
+  { name:"Netherlands", code:"NL", region:"Europe", flag:"🇳🇱", uptime:99.6, kiosk:41, mobile:26, counter:22, dt:11, sesame:"v3.2", roa:true, geofence:true, score:95, incidents:[
+    {sev:"green",date:"May 16",desc:"Scheduled platform update",resolved:"15m"}
+  ]},
+  { name:"Japan", code:"JP", region:"APAC", flag:"🇯🇵", uptime:99.9, kiosk:44, mobile:28, counter:18, dt:10, sesame:"v3.2", roa:true, geofence:true, score:97, incidents:[
+    {sev:"green",date:"May 20",desc:"Routine monitoring test",resolved:"5m"}
+  ]},
+  { name:"Australia", code:"AU", region:"APAC", flag:"🇦🇺", uptime:99.3, kiosk:36, mobile:21, counter:28, dt:15, sesame:"v3.1", roa:true, geofence:true, score:88, incidents:[
+    {sev:"yellow",date:"May 17",desc:"Mobile order routing delay",resolved:"44m"},
+    {sev:"green",date:"May 6",desc:"POS certificate renewal",resolved:"22m"}
+  ]},
+  { name:"China", code:"CN", region:"APAC", flag:"🇨🇳", uptime:98.9, kiosk:30, mobile:35, counter:22, dt:13, sesame:"v3.0", roa:false, geofence:true, score:76, incidents:[
+    {sev:"yellow",date:"May 22",desc:"WeChat Pay integration timeout",resolved:"1h 35m"},
+    {sev:"yellow",date:"May 12",desc:"Delivery API rate limit hit",resolved:"55m"}
+  ]},
+  { name:"South Korea", code:"KR", region:"APAC", flag:"🇰🇷", uptime:99.2, kiosk:40, mobile:30, counter:18, dt:12, sesame:"v3.1", roa:true, geofence:true, score:90, incidents:[
+    {sev:"green",date:"May 18",desc:"NaverPay SDK update",resolved:"30m"},
+    {sev:"green",date:"May 4",desc:"Kiosk UI language pack refresh",resolved:"18m"}
+  ]},
+  { name:"Singapore", code:"SG", region:"APAC", flag:"🇸🇬", uptime:99.7, kiosk:42, mobile:31, counter:17, dt:10, sesame:"v3.2", roa:true, geofence:true, score:96, incidents:[
+    {sev:"green",date:"May 15",desc:"Planned DR failover test",resolved:"8m"}
+  ]},
+  { name:"India", code:"IN", region:"APAC", flag:"🇮🇳", uptime:97.2, kiosk:14, mobile:9, counter:58, dt:19, sesame:"v2.7", roa:false, geofence:false, score:42, incidents:[
+    {sev:"red",date:"May 26",desc:"POS network instability — 8 stores",resolved:"5h 20m"},
+    {sev:"yellow",date:"May 16",desc:"UPI payment gateway failure",resolved:"3h"},
+    {sev:"yellow",date:"May 5",desc:"Kiosk inventory sync error",resolved:"2h 10m"}
+  ]},
+  { name:"Saudi Arabia", code:"SA", region:"MEA", flag:"🇸🇦", uptime:98.4, kiosk:24, mobile:16, counter:44, dt:16, sesame:"v2.9", roa:false, geofence:false, score:60, incidents:[
+    {sev:"yellow",date:"May 23",desc:"POS menu update conflict",resolved:"1h 45m"},
+    {sev:"yellow",date:"May 10",desc:"Drive-thru timer API error",resolved:"1h 20m"}
+  ]},
+  { name:"UAE", code:"AE", region:"MEA", flag:"🇦🇪", uptime:98.8, kiosk:26, mobile:19, counter:40, dt:15, sesame:"v3.0", roa:false, geofence:true, score:67, incidents:[
+    {sev:"yellow",date:"May 20",desc:"Delivery partner API timeout",resolved:"2h"},
+    {sev:"green",date:"May 9",desc:"Kiosk language pack update",resolved:"40m"}
+  ]},
+  { name:"South Africa", code:"ZA", region:"MEA", flag:"🇿🇦", uptime:96.8, kiosk:12, mobile:6, counter:62, dt:20, sesame:"v2.5", roa:false, geofence:false, score:33, incidents:[
+    {sev:"red",date:"May 28",desc:"Countrywide connectivity degradation",resolved:"8h 15m"},
+    {sev:"red",date:"May 17",desc:"POS batch settlement failure",resolved:"4h 5m"},
+    {sev:"yellow",date:"May 6",desc:"Kiosk card reader malfunction",resolved:"2h 30m"}
+  ]},
+  { name:"Egypt", code:"EG", region:"MEA", flag:"🇪🇬", uptime:95.9, kiosk:8, mobile:4, counter:70, dt:18, sesame:"v2.4", roa:false, geofence:false, score:28, incidents:[
+    {sev:"red",date:"May 29",desc:"POS system critical failure — 12 stores",resolved:"10h"},
+    {sev:"red",date:"May 19",desc:"Payment processing outage",resolved:"5h 30m"},
+    {sev:"red",date:"May 8",desc:"Network infrastructure failure",resolved:"7h 45m"}
+  ]}
+];
+
+const initiatives = [
+  {
+    name: "Sesame v3.x Migration",
+    icon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="13" width="14" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="5" y="9" width="10" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="5" width="6" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>`,
+    status: "active",
+    enrolled: 68, total: 100,
+    impact: "+18 pts avg score uplift",
+    target: "Q4 2026",
+    description: "Standardizing all markets on current Sesame POS to unlock ROA, geofencing, and real-time menu sync.",
+    enrolledMarkets: ["US","CA","GB","DE","FR","NL","JP","AU","KR","SG"],
+    prerequisite: null,
+    nextUp: ["Spain","China","Saudi Arabia"],
+    blocked: []
+  },
+  {
+    name: "Ready on Arrival (ROA) Rollout",
+    icon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 3C7.24 3 5 5.24 5 8C5 12 10 17 10 17C10 17 15 12 15 8C15 5.24 12.76 3 10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    status: "active",
+    enrolled: 42, total: 100,
+    impact: "+8 pts (Feature Enablement)",
+    target: "Q2 2027",
+    description: "Geofence-based just-in-time kitchen prep. Requires Sesame v3.x. Field testing kit available.",
+    enrolledMarkets: ["US","CA","GB","DE","NL","JP","AU","KR","SG"],
+    prerequisite: "Sesame v3.x",
+    nextUp: ["France","South Korea","Australia"],
+    blocked: ["Brazil","Mexico","Chile","India","Saudi Arabia","South Africa","Egypt"]
+  },
+  {
+    name: "DevSecOps Golden Pathway",
+    icon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L13 7H17L14 10.5L15.5 15.5L10 12.5L4.5 15.5L6 10.5L3 7H7L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    status: "active",
+    enrolled: 55, total: 100,
+    impact: "+12 pts avg deploy velocity",
+    target: "Q3 2026",
+    description: "Self-serve CI/CD templates reducing team infrastructure overhead. Targets 3× deploy frequency.",
+    enrolledMarkets: ["US","CA","GB","DE","FR","NL","JP","AU","KR","SG"],
+    prerequisite: null,
+    nextUp: ["Spain","China","UAE"],
+    blocked: []
+  },
+  {
+    name: "Predictive Monitoring (MELT)",
+    icon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 13L7 8L10 11L14 6L17 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    status: "piloting",
+    enrolled: 8, total: 100,
+    impact: "−40% MTTR projected",
+    target: "Q1 2027",
+    description: "Moving from reactive to predictive: MELT observability stack with anomaly detection. Currently in Global Tech pilot restaurants.",
+    enrolledMarkets: ["US","JP","GB"],
+    prerequisite: null,
+    nextUp: ["Netherlands","Singapore","Germany"],
+    blocked: []
+  },
+  {
+    name: "Kiosk Adoption Accelerator",
+    icon: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="2" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 16V18H12V16" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="12" r="1" fill="currentColor"/></svg>`,
+    status: "planned",
+    enrolled: 0, total: 100,
+    impact: "+10 pts (Digital Adoption)",
+    target: "Q3 2027",
+    description: "UX and crew training program targeting markets with <20% kiosk order share. Combines UI optimization with staff enablement.",
+    enrolledMarkets: [],
+    prerequisite: null,
+    nextUp: ["Egypt","South Africa","Chile"],
+    blocked: []
+  }
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let currentView = 'health';
+let currentFilter = 'all';
+let currentRegion = 'all';
+let selectedMarket = null;
+let simulatedMarkets = {}; // marketCode -> incident override
+
+function getMarketScore(m) {
+  if (simulatedMarkets[m.code]) {
+    return simulatedMarkets[m.code].score;
+  }
+  return m.score;
+}
+function getMarketUptime(m) {
+  if (simulatedMarkets[m.code]) {
+    return simulatedMarkets[m.code].uptime;
+  }
+  return m.uptime;
+}
+
+// ============================================================
+//  RENDER INITIATIVES
+// ============================================================
+function renderInitiatives() {
+  const container = document.getElementById('initiative-cards');
+  container.innerHTML = initiatives.map((init, i) => `
+    <div class="initiative-card" onclick="openInitModal(${i})">
+      <div class="init-header">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);">
+          ${init.icon}
+          <span class="init-name">${init.name}</span>
+        </div>
+        <div class="status-badge ${init.status}">
+          <div class="status-dot"></div>
+          ${init.status.charAt(0).toUpperCase() + init.status.slice(1)}
+        </div>
+      </div>
+      <hr class="init-divider">
+      <div class="init-progress-label">${init.enrolled} / ${init.total} markets</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill ${init.status==='planned'?'blue':''}" style="width:${init.enrolled}%"></div>
+      </div>
+      <div class="init-impact" style="color:${init.impact.startsWith('-')?'var(--status-green)':'var(--status-green)'}">
+        ${init.impact}
+      </div>
+      <div class="init-target">Target: ${init.target}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+//  RENDER MARKET GRID
+// ============================================================
+function scoreColor(score) {
+  if (score >= 75) return 'var(--status-green)';
+  if (score >= 50) return 'var(--status-yellow)';
+  return 'var(--status-red)';
+}
+function scoreDotClass(score) {
+  if (score >= 75) return '';
+  if (score >= 50) return '';
+  return '';
+}
+function isLegacy(m) {
+  return !m.sesame.startsWith('v3');
+}
+
+function getInitiativeStatus(market, initIdx) {
+  const init = initiatives[initIdx];
+  if (init.enrolledMarkets.includes(market.code)) return 'complete';
+  if (init.prerequisite === 'Sesame v3.x' && isLegacy(market)) return 'blocked';
+  return 'none';
+}
+
+function renderMarketGrid() {
+  const grid = document.getElementById('market-grid');
+  const initIdx = parseInt(document.getElementById('initiative-select').value);
+
+  let filtered = markets.filter(m => {
+    if (currentRegion !== 'all' && m.region !== currentRegion) return false;
+    return true;
+  });
+
+  grid.innerHTML = filtered.map(m => {
+    const score = getMarketScore(m);
+    const uptime = getMarketUptime(m);
+    const dotColor = scoreColor(score);
+    const barColor = scoreColor(score);
+    const isSelected = selectedMarket && selectedMarket.code === m.code;
+    const isAttention = currentFilter === 'attention' && score >= 60;
+    const isLegacyFilter = currentFilter === 'legacy' && !isLegacy(m);
+    const dimmed = isAttention || isLegacyFilter;
+    const flash = currentFilter === 'attention' && score < 60 ? 'attention-flash' : '';
+
+    let initClass = '';
+    if (currentView === 'initiative') {
+      const st = getInitiativeStatus(m, initIdx);
+      initClass = st === 'complete' ? 'init-complete' : st === 'blocked' ? 'init-blocked' : initiatives[initIdx].enrolledMarkets.includes(m.code) ? 'init-progress' : 'init-none';
+      // override dot color for initiative view
+    }
+
+    let effectiveDotColor = dotColor;
+    if (currentView === 'initiative') {
+      const st = getInitiativeStatus(m, initIdx);
+      if (initiatives[initIdx].enrolledMarkets.includes(m.code)) effectiveDotColor = 'var(--mcd-yellow)';
+      else if (st === 'blocked') effectiveDotColor = 'var(--status-red)';
+      else effectiveDotColor = 'var(--text-muted)';
+    }
+
+    return `
+      <div class="market-card ${isSelected?'selected':''} ${dimmed?'dimmed':''} ${flash} ${initClass}"
+           id="mc-${m.code}"
+           onclick="selectMarket('${m.code}')">
+        <div class="mc-header">
+          <div class="mc-name-wrap">
+            <div class="mc-health-dot" id="dot-${m.code}" style="background:${effectiveDotColor}"></div>
+            <span class="mc-name">${m.flag} ${m.name}</span>
+          </div>
+          <span class="mc-code">${m.code}</span>
+        </div>
+        <hr class="mc-divider">
+        <div class="mc-metrics">
+          <div class="mc-metric">
+            <div class="mc-metric-label">Uptime</div>
+            <div class="mc-metric-value">${uptime.toFixed(1)}%</div>
+          </div>
+          <div class="mc-metric">
+            <div class="mc-metric-label">Digital</div>
+            <div class="mc-metric-value">${m.kiosk+m.mobile}%</div>
+          </div>
+          <div class="mc-metric">
+            <div class="mc-metric-label">Stack</div>
+            <div class="mc-metric-value" style="color:${m.sesame.startsWith('v3')?'var(--status-green)':'var(--status-yellow)'}">${m.sesame}</div>
+          </div>
+        </div>
+        <hr class="mc-divider">
+        <div class="mc-score-row">
+          <span class="mc-score-label">Score:</span>
+          <span class="mc-score-num" id="score-num-${m.code}">${score}</span>
+          <div class="mc-score-bar-wrap">
+            <div class="mc-score-bar" style="width:${score}%;background:${barColor}"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+//  VIEW / FILTER / REGION TOGGLES
+// ============================================================
+function setView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  const wrap = document.getElementById('initiative-select-wrap');
+  wrap.classList.toggle('visible', view === 'initiative');
+  renderMarketGrid();
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === filter));
+  renderMarketGrid();
+}
+
+function setRegion(region) {
+  currentRegion = region;
+  document.querySelectorAll('.region-tab').forEach(t => t.classList.toggle('active', t.dataset.region === region));
+  updateKPIForRegion();
+  renderMarketGrid();
+}
+
+function updateKPIForRegion() {
+  if (currentRegion === 'all') {
+    // Show global BRD values — not a simple average
+    const simUptimes = markets.map(m => getMarketUptime(m));
+    const avg = simUptimes.reduce((s,v)=>s+v,0)/simUptimes.length;
+    // Only deviate from 99.2 if an incident was simulated
+    const hasSimulated = Object.keys(simulatedMarkets).length > 0;
+    document.getElementById('kpi-uptime').textContent = hasSimulated ? avg.toFixed(1)+'%' : '99.2%';
+    document.getElementById('kpi-stack').textContent = '68/100';
+  } else {
+    const filtered = markets.filter(m => m.region === currentRegion);
+    const avgUptime = filtered.reduce((s,m)=>s+getMarketUptime(m),0)/filtered.length;
+    document.getElementById('kpi-uptime').textContent = avgUptime.toFixed(1) + '%';
+    const v3count = filtered.filter(m => !isLegacy(m)).length;
+    document.getElementById('kpi-stack').textContent = `${v3count}/${filtered.length}`;
+  }
+}
+
+// ============================================================
+//  MARKET SELECTION + DETAIL PANEL
+// ============================================================
+function selectMarket(code) {
+  selectedMarket = markets.find(m => m.code === code);
+  renderMarketGrid();
+  renderDetailPanel();
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('visible');
+}
+
+function renderDetailPanel() {
+  const m = selectedMarket;
+  const score = getMarketScore(m);
+  const uptime = getMarketUptime(m);
+
+  // Score breakdown sub-scores
+  const reliabilityScore = Math.min(100, Math.max(0, ((uptime - 90) / 10) * 100));
+  const digitalScore = Math.min(100, ((m.kiosk + m.mobile) / 60) * 100);
+  const stackScore = m.sesame.startsWith('v3.2') || m.sesame.startsWith('v3.1') ? 100
+    : m.sesame === 'v3.0' ? 80
+    : m.sesame === 'v2.9' ? 60
+    : m.sesame === 'v2.8' ? 40
+    : 10;
+  const featureScore = (m.roa ? 50 : 0) + (m.geofence ? 50 : 0);
+
+  // Ring
+  const circumference = 2 * Math.PI * 30;
+  const offset = circumference - (score / 100) * circumference;
+
+  // Incidents
+  let incidentData = m.incidents;
+  if (simulatedMarkets[m.code]) {
+    incidentData = [simulatedMarkets[m.code].newIncident, ...m.incidents];
+  }
+
+  // DevSecOps status (just use flag for simplicity)
+  const devsecops = !isLegacy(m);
+  const meltEnrolled = initiatives[3].enrolledMarkets.includes(m.code);
+
+  const dp = document.getElementById('detail-panel');
+  dp.innerHTML = `
+    <div class="dp-market-header">
+      <div class="dp-flag-name">
+        <span class="dp-flag">${m.flag}</span>
+        <div class="dp-market-info">
+          <div class="dp-market-name">${m.name}</div>
+          <span class="dp-region-badge">${m.region}</span>
+        </div>
+      </div>
+      <div class="dp-score-ring">
+        <div class="score-ring-container">
+          <svg class="score-ring-svg" width="72" height="72" viewBox="0 0 72 72">
+            <circle class="score-ring-bg" cx="36" cy="36" r="30"/>
+            <circle class="score-ring-fill" id="dp-ring" cx="36" cy="36" r="30"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${offset}"
+              stroke="${scoreColor(score)}"/>
+          </svg>
+          <div class="score-ring-num" id="dp-score-num">${score}</div>
+        </div>
+        <div class="dp-score-label">Readiness Score</div>
+      </div>
+    </div>
+
+    <div class="dp-section-title">Score Breakdown</div>
+    <div class="score-breakdown">
+      ${scoreRow('Reliability', reliabilityScore, '35%', 'Uptime % normalized. 100 = 100% uptime. Below 95% = critical.', 'var(--status-green)')}
+      ${scoreRow('Digital Adoption', digitalScore, '30%', '(Kiosk% + Mobile%) against 60% target. Measures customer shift to self-service channels.', 'var(--mcd-yellow)')}
+      ${scoreRow('Stack Currency', stackScore, '20%', 'How current the Sesame POS version is. v3.x = current; older versions block ROA + geofencing.', 'var(--status-blue)')}
+      ${scoreRow('Feature Enablement', featureScore, '15%', 'ROA + Geofencing enabled (50 pts each). Unlocks just-in-time kitchen prep and location-aware ordering.', 'var(--mcd-red)')}
+    </div>
+
+    <div class="dp-section-title">Channel Mix</div>
+    <div class="channel-stacked">
+      <div class="channel-seg" style="flex:${m.kiosk};background:var(--chart-kiosk)"></div>
+      <div class="channel-seg" style="flex:${m.mobile};background:var(--chart-mobile)"></div>
+      <div class="channel-seg" style="flex:${m.counter};background:var(--chart-counter)"></div>
+      <div class="channel-seg" style="flex:${m.dt};background:var(--chart-drivethru)"></div>
+    </div>
+    <div class="channel-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--chart-kiosk)"></div>Kiosk ${m.kiosk}%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--chart-mobile)"></div>Mobile ${m.mobile}%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--chart-counter)"></div>Counter ${m.counter}%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--chart-drivethru)"></div>Drive-thru ${m.dt}%</div>
+    </div>
+
+    <div class="dp-section-title">Platform Status</div>
+    <div class="checklist">
+      ${checkRow(m.sesame.startsWith('v3'), 'Sesame POS Version', m.sesame + (m.sesame.startsWith('v3') ? ' (Current)' : ' — Upgrade needed'))}
+      ${checkRow(m.roa, 'ROA / Geofencing', m.roa ? 'Enabled' : (isLegacy(m) ? 'Blocked — requires Sesame v3.x' : 'Not yet enrolled'))}
+      ${checkRow(devsecops, 'NGP DevSecOps Pipeline', devsecops ? 'Connected' : 'Not connected')}
+      ${checkRow(meltEnrolled, 'Predictive Monitoring (MELT)', meltEnrolled ? 'Enrolled' : 'Not yet enrolled')}
+    </div>
+
+    <div class="dp-section-title">Recent Incidents (30 days)</div>
+    <div class="incident-list">
+      ${incidentData.map(inc => `
+        <div class="incident-row">
+          <div class="incident-dot" style="background:${inc.sev==='red'?'var(--status-red)':inc.sev==='yellow'?'var(--status-yellow)':'var(--status-green)'}"></div>
+          <div class="incident-info">
+            <div class="incident-desc">${inc.desc}</div>
+            <div class="incident-meta">${inc.date} · Resolved in ${inc.resolved}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="dp-section-title">Enrolled Initiatives</div>
+    <table class="initiatives-table">
+      <thead><tr><th>Initiative</th><th>Status</th><th>Score Impact</th></tr></thead>
+      <tbody>
+        ${initiatives.map(init => {
+          const enrolled = init.enrolledMarkets.includes(m.code);
+          const blocked = init.prerequisite === 'Sesame v3.x' && isLegacy(m);
+          let statusHtml, impactHtml;
+          if (enrolled) {
+            statusHtml = `<div class="init-status-cell"><span style="color:var(--status-green)">✓</span> Complete</div>`;
+            impactHtml = `<div class="init-impact-cell">${init.impact.split(' ')[0]} applied</div>`;
+          } else if (blocked) {
+            statusHtml = `<div class="init-status-cell"><span style="color:var(--status-red)">✗</span> <span style="color:var(--status-red)">Blocked — needs v3.x</span></div>`;
+            impactHtml = `<div style="color:var(--text-muted)">${init.impact.split(' ')[0]} available</div>`;
+          } else {
+            statusHtml = `<div class="init-status-cell"><span style="color:var(--text-muted)">○</span> <span style="color:var(--text-muted)">Not enrolled</span></div>`;
+            impactHtml = `<div style="color:var(--text-muted)">${init.impact.split(' ')[0]} available</div>`;
+          }
+          return `<tr><td style="color:var(--text-secondary)">${init.name}</td><td>${statusHtml}</td><td>${impactHtml}</td></tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+
+    ${score < 75 ? `
+    <div class="dp-section-title">Priority Actions</div>
+    <div class="recommended-actions">
+      <div class="ra-title">Next Steps for ${m.name}</div>
+      <ol class="ra-list">
+        ${isLegacy(m) ? `<li><span class="ra-num">1.</span> Enroll in Sesame v3.x upgrade path (Est. next quarter)</li>` : ''}
+        ${!m.roa ? `<li><span class="ra-num">${isLegacy(m)?2:1}.</span> Enable ROA geofencing — field testing kit available</li>` : ''}
+        ${!devsecops ? `<li><span class="ra-num">${isLegacy(m)?(!m.roa?3:2):(!m.roa?2:1)}.</span> Connect to Enterprise DevSecOps Platform golden pathway</li>` : ''}
+        ${!meltEnrolled ? `<li><span class="ra-num">+</span> Eligible for Predictive Monitoring (MELT) pilot</li>` : ''}
+      </ol>
+    </div>` : ''}
+
+    <button class="simulate-btn" id="simulate-btn" onclick="simulateIncident('${m.code}')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V4M7 10V13M1 7H4M10 7H13M3.22 3.22L5.34 5.34M8.66 8.66L10.78 10.78M10.78 3.22L8.66 5.34M5.34 8.66L3.22 10.78" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Simulate Incident
+    </button>
+  `;
+}
+
+function scoreRow(label, value, weight, tooltip, color) {
+  return `
+    <div class="score-row">
+      <div class="score-row-header">
+        <div class="tooltip-wrap">
+          <span class="score-row-name">${label}</span>
+          <div class="tooltip">${tooltip}</div>
+        </div>
+        <div class="score-row-right">
+          <span class="score-row-num">${Math.round(value)}</span>
+          <span class="score-row-weight">(${weight})</span>
+        </div>
+      </div>
+      <div class="score-row-bar-wrap">
+        <div class="score-row-bar" style="width:${value}%;background:${color}"></div>
+      </div>
+    </div>
+  `;
+}
+
+function checkRow(ok, label, value) {
+  return `
+    <div class="check-row">
+      <svg class="check-icon" viewBox="0 0 16 16" fill="none">
+        ${ok
+          ? `<circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)" stroke="var(--status-green)" stroke-width="1.2"/>
+             <path d="M5 8L7 10L11 6" stroke="var(--status-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`
+          : `<circle cx="8" cy="8" r="7" fill="rgba(239,68,68,0.1)" stroke="var(--status-red)" stroke-width="1.2"/>
+             <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="var(--status-red)" stroke-width="1.5" stroke-linecap="round"/>`
+        }
+      </svg>
+      <span class="check-label">${label}</span>
+      <span class="check-value">${value}</span>
+    </div>
+  `;
+}
+
+// ============================================================
+//  SIMULATE INCIDENT
+// ============================================================
+function simulateIncident(code) {
+  const m = markets.find(m => m.code === code);
+  if (!m) return;
+
+  const btn = document.getElementById('simulate-btn');
+  btn.disabled = true;
+  btn.textContent = 'Simulating...';
+
+  const newUptime = 96.2;
+  const newScore = Math.round(m.score * 0.87);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+
+  simulatedMarkets[code] = {
+    uptime: newUptime,
+    score: newScore,
+    newIncident: {
+      sev: 'red',
+      date: dateStr,
+      desc: 'POS system failure — simulated incident',
+      resolved: 'Ongoing'
+    }
+  };
+
+  // Flash dot
+  const dot = document.getElementById(`dot-${code}`);
+  if (dot) {
+    dot.style.background = 'var(--status-red)';
+    dot.classList.add('dot-incident');
+    setTimeout(() => dot.classList.remove('dot-incident'), 2000);
+  }
+
+  // Animate score num in card
+  const scoreNum = document.getElementById(`score-num-${code}`);
+  if (scoreNum) {
+    scoreNum.classList.add('score-animating');
+    animateNumber(scoreNum, m.score, newScore, 800);
+    setTimeout(() => scoreNum.classList.remove('score-animating'), 1000);
+  }
+
+  // Update KPI uptime
+  setTimeout(() => {
+    updateKPIForRegion();
+    renderMarketGrid();
+    if (selectedMarket && selectedMarket.code === code) {
+      renderDetailPanel();
+    }
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V4M7 10V13M1 7H4M10 7H13M3.22 3.22L5.34 5.34M8.66 8.66L10.78 10.78M10.78 3.22L8.66 5.34M5.34 8.66L3.22 10.78" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Simulate Another`;
+  }, 900);
+}
+
+function animateNumber(el, from, to, duration) {
+  const start = performance.now();
+  function step(ts) {
+    const progress = Math.min((ts - start) / duration, 1);
+    el.textContent = Math.round(from + (to - from) * progress);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+//  INITIATIVE MODAL
+// ============================================================
+function openInitModal(idx) {
+  const init = initiatives[idx];
+  const allCodes = markets.map(m => m.code);
+  const enrolled = init.enrolledMarkets;
+  const blocked = init.blocked || [];
+
+  document.getElementById('init-modal-content').innerHTML = `
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="color:var(--text-secondary)">${init.icon}</span>
+        <div class="modal-title">${init.name}</div>
+        <div class="status-badge ${init.status}">
+          <div class="status-dot"></div>
+          ${init.status.charAt(0).toUpperCase()+init.status.slice(1)}
+        </div>
+      </div>
+      <div class="modal-desc">${init.description}</div>
+      ${init.prerequisite ? `<div style="margin-top:8px;font-size:var(--font-xs);color:var(--status-yellow);background:rgba(255,199,44,0.1);border:1px solid rgba(255,199,44,0.2);padding:6px 10px;border-radius:6px;">
+        ⚠ Prerequisite: ${init.prerequisite} required
+      </div>` : ''}
+    </div>
+
+    <div class="progress-bar-wrap" style="height:8px;margin-bottom:16px;">
+      <div class="progress-bar-fill" style="width:${init.enrolled}%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:var(--font-xs);color:var(--text-muted);margin-bottom:20px;">
+      <span>${init.enrolled} of ${init.total} markets enrolled</span>
+      <span>Target: ${init.target}</span>
+    </div>
+
+    <div class="modal-grid-label">Market Enrollment Status</div>
+    <div class="modal-market-grid">
+      ${markets.map(m => {
+        const isEnrolled = enrolled.includes(m.code);
+        const isBlocked = init.prerequisite === 'Sesame v3.x' && isLegacy(m) && !isEnrolled;
+        const cls = isEnrolled ? 'enrolled' : isBlocked ? 'blocked' : 'not-enrolled';
+        return `<div class="modal-market-chip ${cls}" title="${isBlocked?'Blocked — requires Sesame v3.x':''}">
+          ${m.flag} ${m.code}
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="modal-grid-label">Top 3 Markets Ready to Onboard Next</div>
+    <div class="modal-list">
+      ${init.nextUp.slice(0,3).map((name, i) => {
+        const market = markets.find(m => m.name === name);
+        return `<div class="modal-list-row">
+          <div class="modal-list-num ready">${i+1}</div>
+          <span style="color:var(--text-primary);font-weight:500;">${market?market.flag:''} ${name}</span>
+          <span style="color:var(--text-muted);font-size:var(--font-xs);margin-left:auto;">High readiness score</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${blocked.length > 0 ? `
+    <div class="modal-grid-label" style="margin-top:16px;">Markets Currently Blocked</div>
+    <div class="modal-list">
+      ${blocked.slice(0,3).map((name, i) => {
+        const market = markets.find(m => m.name === name);
+        return `<div class="modal-list-row">
+          <div class="modal-list-num blocked">${i+1}</div>
+          <span style="color:var(--text-primary);font-weight:500;">${market?market.flag:''} ${name}</span>
+          <span style="color:var(--status-red);font-size:var(--font-xs);margin-left:auto;">Missing: ${init.prerequisite}</span>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  `;
+
+  document.getElementById('init-modal-overlay').classList.add('open');
+}
+
+function closeInitModal(e) {
+  if (e.target === document.getElementById('init-modal-overlay')) {
+    closeInitModalDirect();
+  }
+}
+function closeInitModalDirect() {
+  document.getElementById('init-modal-overlay').classList.remove('open');
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+renderInitiatives();
+renderMarketGrid();
+updateKPIForRegion();
+
+// Close modal on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeInitModalDirect();
+});
+
+// Tick last updated
+setInterval(() => {
+  const el = document.getElementById('last-updated');
+  if (el) el.textContent = 'Last updated: just now';
+}, 30000);
+</script>
+</body>
+</html>
